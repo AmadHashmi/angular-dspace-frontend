@@ -12,8 +12,8 @@ export class DspaceService {
     return this.http.get(`${API_URL}/core/communities`);
   }
 
-  getCollections(): Observable<any> {
-    return this.http.get(`${API_URL}/core/collections`);
+  getCollections(community: any): Observable<any> {
+    return this.http.get(community._links.collections.href);
   }
 
   getItems(): Observable<any> {
