@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { DspaceService } from './services/dspace.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [
+    // RouterOutlet,
+    RouterModule,
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
