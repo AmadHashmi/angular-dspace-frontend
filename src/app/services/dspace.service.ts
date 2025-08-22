@@ -16,8 +16,17 @@ export class DspaceService {
     return this.http.get(community._links.collections.href);
   }
 
-  getItems(): Observable<any> {
-    return this.http.get(`${API_URL}/core/items`);
+  getItems(collection: any): Observable<any> {
+    const itemsLink =
+      collection._links.items?.href || collection._links.mappedItems?.href;
+
+    if (itemsLink) {
+      return this.http.get(itemsLink);
+    } else {
+      return this.http.get(
+        `${API_URL}/core/items/search/findByCollection?uuid=${collection.uuid}`
+      );
+    }
   }
 
   search(query: string): Observable<any> {

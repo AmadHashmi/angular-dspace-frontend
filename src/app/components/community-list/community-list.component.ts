@@ -33,7 +33,7 @@ export class CommunityListComponent implements OnInit {
     });
   }
 
-  goToCollections(community: any) {
+  goToCollectionsList(community: any) {
     this.router.navigate(['/community', community.uuid, 'collections']);
   }
 }

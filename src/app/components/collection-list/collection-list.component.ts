@@ -66,6 +66,9 @@ export class CollectionListComponent {
       },
     });
   }
+  goToItemsList(collection: any) {
+    this.router.navigate(['/collection', collection.uuid, 'items']);
+  }
 
   goBack() {
     this.router.navigate(['/']);

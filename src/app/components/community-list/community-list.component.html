@@ -10,7 +10,7 @@
 
   <div class="grid">
     @for (community of communities; track community.uuid) {
-    <div class="card" (click)="goToCollections(community)">
+    <div class="card" (click)="goToCollectionsList(community)">
       <h3>{{ community.name }}</h3>
       <p>Handle: {{ community.handle }}</p>
       <p>Items: {{ community.archivedItemsCount }}</p>
