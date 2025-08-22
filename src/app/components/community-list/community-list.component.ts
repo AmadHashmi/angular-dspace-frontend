@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DspaceService } from '../../services/dspace.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-community-list',
@@ -12,7 +13,7 @@ export class CommunityListComponent implements OnInit {
   communities: any[] = [];
   error: string | null = null;
   loading = false;
-  constructor(private dspaceService: DspaceService) {}
+  constructor(private router: Router, private dspaceService: DspaceService) {}
   ngOnInit(): void {
     this.loadCommunities();
   }
@@ -30,5 +31,9 @@ export class CommunityListComponent implements OnInit {
         console.error('Error', error);
       },
     });
+  }
+
+  goToCollections(community: any) {
+    this.router.navigate(['/community', community.uuid, 'collections']);
   }
 }
