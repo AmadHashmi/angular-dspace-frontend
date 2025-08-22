@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { DspaceService } from './services/dspace.service';
 
 @Component({
   selector: 'app-root',
@@ -12,20 +11,7 @@ import { DspaceService } from './services/dspace.service';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   title = 'angular-dspace-frontend';
-  constructor(private dspaceService: DspaceService) {}
-  ngOnInit(): void {
-    this.dspaceService.getCommunities().subscribe((communities) => {
-      console.log(communities);
-    });
-
-    this.dspaceService.getCollections().subscribe((collections) => {
-      console.log(collections);
-    });
-
-    this.dspaceService.getItems().subscribe((items) => {
-      console.log(items);
-    });
-  }
+  constructor() {}
 }
