@@ -1,6 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DspaceService } from '../../services/dspace.service';
+import {
+  StateService,
+  Community,
+  Collection,
+} from '../../services/state.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-collection-list',
@@ -9,68 +15,156 @@ import { ActivatedRoute, Router } from '@angular/router';
   templateUrl: './collection-list.component.html',
   styleUrl: './collection-list.component.css',
 })
-export class CollectionListComponent {
-  collections: any[] = [];
-  community: any = null;
+export class CollectionListComponent implements OnInit, OnDestroy {
+  collections: Collection[] = [];
+  community: Community | null = null;
   loading = true;
   error: string | null = null;
   communityId: string = '';
+  private subscription = new Subscription();
 
   constructor(
     private dspaceService: DspaceService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private stateService: StateService
   ) {}
 
   ngOnInit() {
-    this.route.paramMap.subscribe((params) => {
-      this.communityId = params.get('id') || '';
-      this.loadCollections();
-    });
+    this.subscription.add(
+      this.route.paramMap.subscribe((params) => {
+        const newCommunityId = params.get('id') || '';
+        if (newCommunityId !== this.communityId) {
+          this.communityId = newCommunityId;
+          this.loadCollections();
+        }
+      })
+    );
+
+    this.subscription.add(
+      this.stateService.state$.subscribe((state) => {
+        this.collections = state.collections;
+        this.community = state.activeCommunity;
+        this.loading = state.loading;
+        this.error = state.error;
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   loadCollections() {
-    this.loading = true;
-    this.error = null;
+    this.stateService.setLoading(true);
+    this.stateService.clearError();
 
-    // First get the community details
-    this.dspaceService.getCommunities().subscribe({
-      next: (response) => {
-        this.community = response._embedded.communities.find(
-          (comm: any) => comm.uuid === this.communityId
-        );
+    const currentState = this.stateService.getCurrentState();
+    if (
+      currentState.activeCommunity &&
+      currentState.activeCommunity.uuid === this.communityId
+    ) {
+      if (currentState.collections.length === 0) {
+        this.fetchCollections(currentState.activeCommunity);
+      } else {
+        this.stateService.setLoading(false);
+      }
+    } else {
+      this.findCommunityAndLoadCollections();
+    }
+  }
 
-        if (this.community) {
-          // Now load collections for this community
-          this.dspaceService.getCollections(this.community).subscribe({
-            next: (collectionsResponse) => {
-              this.collections =
-                collectionsResponse._embedded?.collections || [];
-              this.loading = false;
-            },
-            error: (collectionsError) => {
-              this.error = 'Failed to load collections';
-              this.loading = false;
-              console.error('Collections error:', collectionsError);
-            },
-          });
+  private findCommunityAndLoadCollections() {
+    const currentState = this.stateService.getCurrentState();
+
+    if (this.stateService.hasCommunity(this.communityId)) {
+      const community = this.stateService.getCommunity(this.communityId);
+      if (community) {
+        this.stateService.setActiveCommunity(community);
+        this.fetchCollections(community);
+        return;
+      }
+    }
+
+    if (currentState.communities.length === 0) {
+      this.dspaceService.getCommunities().subscribe({
+        next: (response) => {
+          if (response._embedded && response._embedded.communities) {
+            const communities = response._embedded.communities.map(
+              (comm: any) => ({
+                ...comm,
+                name: this.dspaceService.extractName(comm),
+              })
+            );
+            this.stateService.setCommunities(communities);
+
+            const community = communities.find(
+              (comm: any) => comm.uuid === this.communityId
+            );
+            if (community) {
+              this.stateService.setActiveCommunity(community);
+              this.fetchCollections(community);
+            } else {
+              this.stateService.setError('Community not found');
+            }
+          } else {
+            this.stateService.setError('No communities found');
+          }
+        },
+        error: (error) => {
+          this.stateService.setError('Failed to load communities');
+          console.error('Error loading communities:', error);
+        },
+      });
+    } else {
+      const community = currentState.communities.find(
+        (comm) => comm.uuid === this.communityId
+      );
+      if (community) {
+        this.stateService.setActiveCommunity(community);
+        this.fetchCollections(community);
+      } else {
+        this.stateService.setError('Community not found');
+      }
+    }
+  }
+
+  private fetchCollections(community: Community) {
+    this.dspaceService.getCollections(community).subscribe({
+      next: (collectionsResponse) => {
+        if (
+          collectionsResponse._embedded &&
+          collectionsResponse._embedded.collections
+        ) {
+          const collections = collectionsResponse._embedded.collections.map(
+            (col: any) => ({
+              ...col,
+              name: this.dspaceService.extractName(col),
+            })
+          );
+          this.stateService.setCollections(collections);
         } else {
-          this.error = 'Community not found';
-          this.loading = false;
+          this.stateService.setCollections([]);
         }
       },
-      error: (error) => {
-        this.error = 'Failed to load community details';
-        this.loading = false;
-        console.error('Community error:', error);
+      error: (collectionsError) => {
+        this.stateService.setError('Failed to load collections');
+        console.error('Collections error:', collectionsError);
       },
     });
   }
-  goToItemsList(collection: any) {
+
+  goToItemsList(collection: Collection) {
+    this.stateService.setActiveCollection(collection);
+
     this.router.navigate(['/collection', collection.uuid, 'items']);
   }
 
   goBack() {
     this.router.navigate(['/']);
+  }
+
+  retry() {
+    this.loadCollections();
   }
 }

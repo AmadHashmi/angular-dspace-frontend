@@ -1,1 +1,77 @@
-<p>item-list works!</p>
+<div class="container">
+  <!-- breadcrumb navigation -->
+  <div class="header">
+    <div class="breadcrumb">
+      <span class="breadcrumb-item" (click)="goBackToCommunities()"
+        >Communities</span
+      >
+      @if (community) {
+      <span class="breadcrumb-separator">/</span>
+      <span class="breadcrumb-item" (click)="goBackToCollections()">{{
+        community.name || "Untitled Community"
+      }}</span>
+      } @if (collection) {
+      <span class="breadcrumb-separator">/</span>
+      <span class="breadcrumb-item active">{{
+        collection.name || "Untitled Collection"
+      }}</span>
+      }
+    </div>
+
+    <h2>Items</h2>
+    @if (collection) {
+    <p class="collection-name">
+      in {{ collection.name || "Untitled Collection" }}
+    </p>
+    }
+  </div>
+
+  <!-- Loading State -->
+  @if (loading) {
+  <div class="loading">
+    <p>Loading items...</p>
+  </div>
+  } @else if (error) {
+  <div class="error">
+    <p>{{ error }}</p>
+    <button (click)="retry()" class="retry-btn">Retry</button>
+  </div>
+  } @else if (items.length === 0) {
+  <div class="empty-state">
+    <p>No items found in this collection.</p>
+    <button (click)="retry()" class="retry-btn">Refresh</button>
+  </div>
+  } @else {
+  <!-- Items List -->
+  <div class="items-container">
+    <div class="items-count">
+      Showing {{ items.length }} item{{ items.length !== 1 ? "s" : "" }}
+    </div>
+
+    <div class="items-list">
+      @for (item of items; track item.uuid) {
+      <div class="item-card">
+        <div class="item-icon">📄</div>
+
+        <div class="item-content">
+          <h3 class="item-title">{{ getItemTitle(item) }}</h3>
+
+          @if (getItemDescription(item)) {
+          <p class="item-description">{{ getItemDescription(item) }}</p>
+          }
+
+          <div class="item-meta">
+            @if (getItemDate(item)) {
+            <span class="item-date">Date: {{ getItemDate(item) }}</span>
+            }
+            <span class="item-handle"
+              >Handle: {{ item["handle"] || "N/A" }}</span
+            >
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+  }
+</div>
