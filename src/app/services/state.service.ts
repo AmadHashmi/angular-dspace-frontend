@@ -22,6 +22,15 @@ export interface Item {
   [key: string]: any;
 }
 
+export interface PaginationInfo {
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  first: boolean;
+  last: boolean;
+}
+
 export interface AppState {
   communities: Community[];
   activeCommunity: Community | null;
@@ -30,6 +39,10 @@ export interface AppState {
   items: Item[];
   loading: boolean;
   error: string | null;
+  // Pagination for communities
+  communitiesPagination: PaginationInfo | null;
+  communitiesCurrentPage: number;
+  communitiesPageSize: number;
 }
 
 @Injectable({
@@ -44,6 +57,10 @@ export class StateService {
     items: [],
     loading: false,
     error: null,
+    // Pagination initial state
+    communitiesPagination: null,
+    communitiesCurrentPage: 0,
+    communitiesPageSize: 10,
   };
 
   private stateSubject = new BehaviorSubject<AppState>(this.initialState);
@@ -75,13 +92,39 @@ export class StateService {
     return state.collections.find((col) => col.uuid === uuid) || null;
   }
 
-  setCommunities(communities: Community[]): void {
+  setCommunities(communities: Community[], pagination?: PaginationInfo): void {
     const currentState = this.getCurrentState();
     this.stateSubject.next({
       ...currentState,
       communities,
+      communitiesPagination: pagination || null,
       loading: false,
       error: null,
+    });
+  }
+
+  setCommunitiesPagination(pagination: PaginationInfo): void {
+    const currentState = this.getCurrentState();
+    this.stateSubject.next({
+      ...currentState,
+      communitiesPagination: pagination,
+    });
+  }
+
+  setCommunitiesCurrentPage(page: number): void {
+    const currentState = this.getCurrentState();
+    this.stateSubject.next({
+      ...currentState,
+      communitiesCurrentPage: page,
+    });
+  }
+
+  setCommunitiesPageSize(size: number): void {
+    const currentState = this.getCurrentState();
+    this.stateSubject.next({
+      ...currentState,
+      communitiesPageSize: size,
+      communitiesCurrentPage: 0,
     });
   }
 

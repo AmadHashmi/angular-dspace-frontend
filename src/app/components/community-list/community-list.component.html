@@ -25,5 +25,14 @@
     </div>
     }
   </div>
+
+  <app-pagination
+    [pagination]="pagination"
+    [currentPage]="currentPage"
+    [loading]="loading"
+    (pageChange)="onPageChange($event)"
+    (pageSizeChange)="onPageSizeChange($event)"
+  >
+  </app-pagination>
   }
 </div>

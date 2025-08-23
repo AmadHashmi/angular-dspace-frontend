@@ -1,5 +1,4 @@
 <div class="container">
-  <!-- breadcrumb navigation -->
   <div class="header">
     <div class="breadcrumb">
       <span class="breadcrumb-item" (click)="goBackToCommunities()"
@@ -26,7 +25,6 @@
     }
   </div>
 
-  <!-- Loading State -->
   @if (loading) {
   <div class="loading">
     <p>Loading items...</p>
@@ -42,7 +40,7 @@
     <button (click)="retry()" class="retry-btn">Refresh</button>
   </div>
   } @else {
-  <!-- Items List -->
+
   <div class="items-container">
     <div class="items-count">
       Showing {{ items.length }} item{{ items.length !== 1 ? "s" : "" }}

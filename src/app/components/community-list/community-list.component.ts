@@ -1,13 +1,18 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DspaceService } from '../../services/dspace.service';
-import { StateService, Community } from '../../services/state.service';
+import {
+  StateService,
+  Community,
+  PaginationInfo,
+} from '../../services/state.service';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { PaginationComponent } from '../pagination/pagination.component';
 
 @Component({
   selector: 'app-community-list',
   standalone: true,
-  imports: [],
+  imports: [PaginationComponent],
   templateUrl: './community-list.component.html',
   styleUrl: './community-list.component.css',
 })
@@ -15,6 +20,9 @@ export class CommunityListComponent implements OnInit, OnDestroy {
   communities: Community[] = [];
   loading = false;
   error: string | null = null;
+  pagination: PaginationInfo | null = null;
+  currentPage: number = 0;
+  pageSize: number = 10;
   private subscription = new Subscription();
 
   constructor(
@@ -29,6 +37,9 @@ export class CommunityListComponent implements OnInit, OnDestroy {
         this.communities = state.communities;
         this.loading = state.loading;
         this.error = state.error;
+        this.pagination = state.communitiesPagination;
+        this.currentPage = state.communitiesCurrentPage;
+        this.pageSize = state.communitiesPageSize;
       })
     );
 
@@ -42,11 +53,11 @@ export class CommunityListComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  loadCommunities() {
+  loadCommunities(page: number = 0, size: number = this.pageSize) {
     this.stateService.setLoading(true);
     this.stateService.clearError();
 
-    this.dspaceService.getCommunities().subscribe({
+    this.dspaceService.getCommunities(page, size).subscribe({
       next: (response) => {
         if (response._embedded && response._embedded.communities) {
           const communities = response._embedded.communities.map(
@@ -55,7 +66,12 @@ export class CommunityListComponent implements OnInit, OnDestroy {
               name: this.dspaceService.extractName(comm),
             })
           );
-          this.stateService.setCommunities(communities);
+
+          const pagination = this.dspaceService.extractPagination(response);
+
+          this.stateService.setCommunities(communities, pagination);
+          this.stateService.setCommunitiesCurrentPage(page);
+          this.stateService.setCommunitiesPageSize(size);
         } else {
           this.stateService.setError('No communities found');
         }
@@ -67,6 +83,15 @@ export class CommunityListComponent implements OnInit, OnDestroy {
     });
   }
 
+  onPageChange(page: number) {
+    this.loadCommunities(page, this.pageSize);
+  }
+
+  onPageSizeChange(size: number) {
+    this.pageSize = size;
+    this.loadCommunities(0, size);
+  }
+
   goToCollectionsList(community: Community) {
     this.stateService.setActiveCommunity(community);
 
@@ -74,6 +99,6 @@ export class CommunityListComponent implements OnInit, OnDestroy {
   }
 
   retry() {
-    this.loadCommunities();
+    this.loadCommunities(this.currentPage, this.pageSize);
   }
 }
