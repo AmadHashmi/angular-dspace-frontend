@@ -35,25 +35,12 @@
   <div class="grid">
     @for (collection of collections; track collection.uuid) {
     <div class="card" (click)="goToItemsList(collection)">
-      <div class="card-header">
-        <h3>{{ collection.name || "Untitled Collection" }}</h3>
-      </div>
-      <div class="card-body">
-        <p class="handle">Handle: {{ collection["handle"] || "N/A" }}</p>
-        <p class="items-count">
-          Items:
-          {{
-            collection["archivedItemsCount"] >= 0
-              ? collection["archivedItemsCount"]
-              : "N/A"
-          }}
-        </p>
-        @if (collection['metadata']?.['dc.description']?.[0]?.value) {
-        <p class="description">
-          {{ collection["metadata"]["dc.description"][0].value }}
-        </p>
-        }
-      </div>
+      <h3>{{ collection.name || "Untitled Collection" }}</h3>
+      <p>Handle: {{ collection["handle"] || "N/A" }}</p>
+      <p>Items: {{ collection["archivedItemsCount"] >= 0 ? collection["archivedItemsCount"] : "N/A" }}</p>
+      @if (collection['metadata']?.['dc.description']?.[0]?.value) {
+      <p>{{ collection["metadata"]["dc.description"][0].value }}</p>
+      }
     </div>
     }
   </div>
