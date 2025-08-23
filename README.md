@@ -1,27 +1,85 @@
-# AngularDspaceFrontend
+# DSpace Repository Frontend
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.1.4.
+A modern Angular application for browsing and exploring DSpace digital repositories.
 
-## Development server
+## 📱 Application Screenshots
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+### 1. Communities Overview
 
-## Code scaffolding
+![Communities List](src/assets/communities.png)
+_Main page showing all available communities with pagination controls_
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+### 2. Collections View
 
-## Build
+![Collections List](src/assets/collections.png)
+_Collections within a selected community, displaying collection cards_
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### 3. Items Display
 
-## Running unit tests
+![Items List](src/assets/items.png)
+_Items within a selected collection, showing item names and authors_
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+### 4. Additional Communities View
 
-## Running end-to-end tests
+![Communities Alternative View](src/assets/communities2.png)
+_Alternative view of communities showing different pagination or layout_
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## 🏗️ Project Structure
 
-## Further help
+```
+angular-dspace-frontend/
+├── src/
+│   ├── app/
+│   │   ├── components/
+│   │   │   ├── community-list/          # Communities listing component
+│   │   │   ├── collection-list/         # Collections within a community
+│   │   │   ├── item-list/              # Items within a collection
+│   │   │   └── pagination/             # Reusable pagination component
+│   │   ├── services/
+│   │   │   ├── dspace.service.ts       # DSpace API communication
+│   │   │   └── state.service.ts        # Centralized state management
+│   │   ├── app.component.ts            # Main application component
+│   │   ├── app.component.html          # Main application template
+│   │   └── app.routes.ts               # Application routing
+│   ├── assets/                         # Static assets (images, icons)
+│   ├── styles.css                      # Global styles
+│   ├── main.ts                         # Application entry point
+│   └── index.html                      # Main HTML template
+├── package.json                         # Project dependencies and scripts
+├── angular.json                         # Angular CLI configuration
+└── tsconfig.json                       # TypeScript configuration
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## 🛠️ Setup & Run
+
+### Prerequisites
+
+- Node.js 18.0.0+
+- npm 9.0.0+
+- Angular CLI 18.1.0+
+
+### Installation
+
+```bash
+# Clone and navigate to project
+cd angular-dspace-frontend
+
+# Install dependencies
+npm install
+
+# Start development server
+npm start
+# or
+ng serve
+# or
+ng serve --port 4000
+```
+
+The application will be available at `http://localhost:4000/`
+
+## 🔧 Available Scripts
+
+- `npm start` - Start development server
+- `npm run build` - Build for production
+- `ng serve` - Start development server (Angular CLI)
+- `ng build` - Build the application
