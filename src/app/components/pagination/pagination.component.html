@@ -1,12 +1,30 @@
-@if (pagination && totalPages > 1) {
+@if (pagination) {
 <div class="pagination-container">
   <div class="page-info">
     <span class="showing-text">
       Showing {{ startElement }}-{{ endElement }} of
       {{ totalElements }} communities
     </span>
+
+    <div class="page-size-selector">
+      <label for="pageSize">Show:</label>
+      <select
+        id="pageSize"
+        [(ngModel)]="pageSize"
+        (ngModelChange)="onPageSizeChange($event)"
+        [disabled]="loading"
+      >
+        @for (size of pageSizeOptions; track size) {
+        <option [value]="size">
+          {{ size }}
+        </option>
+        }
+      </select>
+      <span>per page</span>
+    </div>
   </div>
 
+  @if (totalPages > 1) {
   <div class="pagination-controls">
     <button
       class="pagination-btn first-page"
@@ -63,5 +81,10 @@
   <div class="current-page-info">
     Page {{ currentPage + 1 }} of {{ totalPages }}
   </div>
+  } @else {
+  <div class="single-page-info">
+    <span>Single page of results</span>
+  </div>
+  }
 </div>
 }

@@ -129,6 +129,15 @@
   font-weight: 500;
 }
 
+.single-page-info {
+  text-align: center;
+  padding: 15px;
+  color: #6c757d;
+  font-style: italic;
+  border-top: 1px solid #f1f2f6;
+  margin-top: 15px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .pagination-container {

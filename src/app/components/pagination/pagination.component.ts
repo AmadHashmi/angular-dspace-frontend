@@ -1,10 +1,11 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { PaginationInfo } from '../../services/state.service';
 
 @Component({
   selector: 'app-pagination',
   standalone: true,
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './pagination.component.html',
   styleUrl: './pagination.component.css',
 })
@@ -49,9 +50,7 @@ export class PaginationComponent {
     }
   }
 
-  onPageSizeChange(event: Event) {
-    const select = event.target as HTMLSelectElement;
-    const newSize = parseInt(select.value);
+  onPageSizeChange(newSize: number) {
     this.pageSizeChange.emit(newSize);
   }
 

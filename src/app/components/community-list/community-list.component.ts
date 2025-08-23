@@ -49,10 +49,7 @@ export class CommunityListComponent implements OnInit, OnDestroy {
       })
     );
 
-    const currentState = this.stateService.getCurrentState();
-    if (currentState.communities.length === 0) {
-      this.loadCommunities();
-    }
+    this.loadCommunities();
   }
 
   ngOnDestroy(): void {
