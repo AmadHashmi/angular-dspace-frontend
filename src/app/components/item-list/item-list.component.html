@@ -49,23 +49,9 @@
     <div class="items-list">
       @for (item of items; track item.uuid) {
       <div class="item-card">
-        <div class="item-icon">📄</div>
-
         <div class="item-content">
-          <h3 class="item-title">{{ getItemTitle(item) }}</h3>
-
-          @if (getItemDescription(item)) {
-          <p class="item-description">{{ getItemDescription(item) }}</p>
-          }
-
-          <div class="item-meta">
-            @if (getItemDate(item)) {
-            <span class="item-date">Date: {{ getItemDate(item) }}</span>
-            }
-            <span class="item-handle"
-              >Handle: {{ item["handle"] || "N/A" }}</span
-            >
-          </div>
+          <h3 class="item-title">{{ item['name'] || 'Untitled Item' }}</h3>
+          <p class="item-author">Author: {{ item['author'] || 'Unknown Author' }}</p>
         </div>
       </div>
       }

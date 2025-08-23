@@ -203,16 +203,28 @@ export class ItemListComponent implements OnInit, OnDestroy {
   ) {
     this.dspaceService.getItems(collection, page, size).subscribe({
       next: (itemsResponse) => {
-        if (itemsResponse._embedded && itemsResponse._embedded.items) {
-          const items = itemsResponse._embedded.items.map((item: any) => ({
+        console.log('Items response:', itemsResponse);
+
+        let items = [];
+        if (itemsResponse._embedded) {
+          if (itemsResponse._embedded.items) {
+            items = itemsResponse._embedded.items;
+          } else if (itemsResponse._embedded.mappedItems) {
+            items = itemsResponse._embedded.mappedItems;
+          }
+        }
+
+        if (items.length > 0) {
+          const processedItems = items.map((item: any) => ({
             ...item,
             name: this.dspaceService.extractName(item),
+            author: this.extractAuthor(item),
           }));
 
           const pagination =
             this.dspaceService.extractPagination(itemsResponse);
 
-          this.stateService.setItems(items);
+          this.stateService.setItems(processedItems);
           this.stateService.setItemsPagination(pagination);
           this.stateService.setItemsCurrentPage(page);
           this.stateService.setItemsPageSize(size);
@@ -230,6 +242,24 @@ export class ItemListComponent implements OnInit, OnDestroy {
     });
   }
 
+  private extractAuthor(item: any): string {
+    const authorFields = [
+      'project.investigator',
+      'dc.contributor.author',
+      'dc.creator',
+      'dc.contributor',
+      'dc.publisher',
+    ];
+
+    for (const field of authorFields) {
+      if (item.metadata && item.metadata[field] && item.metadata[field][0]) {
+        return item.metadata[field][0].value;
+      }
+    }
+
+    return 'Unknown Author';
+  }
+
   onPageChange(page: number) {
     console.log('Items page change requested:', page);
     this.loadItems(page, this.pageSize);
@@ -239,18 +269,6 @@ export class ItemListComponent implements OnInit, OnDestroy {
     console.log('Items page size change requested:', size);
     this.pageSize = size;
     this.loadItems(0, size);
-  }
-
-  getItemTitle(item: Item): string {
-    return this.dspaceService.extractName(item);
-  }
-
-  getItemDescription(item: Item): string {
-    return this.dspaceService.extractDescription(item);
-  }
-
-  getItemDate(item: Item): string {
-    return this.dspaceService.extractDate(item);
   }
 
   goBackToCollections() {
