@@ -10,23 +10,39 @@
   position: relative;
 }
 
-.back-button {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  background: #3498db;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
   font-size: 14px;
-  transition: background-color 0.3s ease;
 }
 
-.back-button:hover {
-  background: #2980b9;
+.breadcrumb-item {
+  color: #3498db;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.breadcrumb-item:hover {
+  background-color: #ecf0f1;
+  color: #2980b9;
+}
+
+.breadcrumb-item.active {
+  color: #7f8c8d;
+  cursor: default;
+}
+
+.breadcrumb-item.active:hover {
+  background-color: transparent;
+}
+
+.breadcrumb-separator {
+  color: #bdc3c7;
+  margin: 0 8px;
 }
 
 .header h2 {
@@ -49,19 +65,41 @@
 }
 
 .loading p {
-  color: #7f8c8d;
-  font-size: 16px;
+  color: #3498db;
+  font-size: 18px;
+  font-weight: 500;
 }
 
 .error {
   background-color: #ffe6e6;
   color: #c0392b;
-  padding: 16px;
+  padding: 20px;
   border-radius: 8px;
   border-left: 4px solid #c0392b;
   margin: 20px 0;
   text-align: center;
+}
+
+.error p {
+  margin: 0 0 16px 0;
   font-weight: 500;
+  font-size: 16px;
+}
+
+.retry-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.retry-btn:hover {
+  background-color: #c0392b;
 }
 
 .empty-state {
@@ -73,6 +111,7 @@
 .empty-state p {
   font-size: 18px;
   font-style: italic;
+  margin: 0 0 16px 0;
 }
 
 .grid {
@@ -152,6 +191,12 @@
     padding: 16px;
   }
 
+  .breadcrumb {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+
   .grid {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -159,14 +204,6 @@
 
   .header h2 {
     font-size: 24px;
-    margin-left: 60px;
-    margin-right: 60px;
-  }
-
-  .back-button {
-    position: relative;
-    margin-bottom: 20px;
-    transform: none;
   }
 
   .card {
@@ -181,8 +218,10 @@
 
   .header h2 {
     font-size: 22px;
-    margin-left: 0;
-    margin-right: 0;
+  }
+
+  .breadcrumb {
+    font-size: 13px;
   }
 
   .card-header h3 {
