@@ -4,14 +4,16 @@ import {
   StateService,
   Community,
   Collection,
+  PaginationInfo,
 } from '../../services/state.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { PaginationComponent } from '../pagination/pagination.component';
 
 @Component({
   selector: 'app-collection-list',
   standalone: true,
-  imports: [],
+  imports: [PaginationComponent],
   templateUrl: './collection-list.component.html',
   styleUrl: './collection-list.component.css',
 })
@@ -21,6 +23,9 @@ export class CollectionListComponent implements OnInit, OnDestroy {
   loading = true;
   error: string | null = null;
   communityId: string = '';
+  pagination: PaginationInfo | null = null;
+  currentPage: number = 0;
+  pageSize: number = 10;
   private subscription = new Subscription();
 
   constructor(
@@ -47,6 +52,9 @@ export class CollectionListComponent implements OnInit, OnDestroy {
         this.community = state.activeCommunity;
         this.loading = state.loading;
         this.error = state.error;
+        this.pagination = state.collectionsPagination;
+        this.currentPage = state.collectionsCurrentPage;
+        this.pageSize = state.collectionsPageSize;
       })
     );
   }
@@ -55,7 +63,7 @@ export class CollectionListComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  loadCollections() {
+  loadCollections(page: number = 0, size: number = this.pageSize) {
     this.stateService.setLoading(true);
     this.stateService.clearError();
 
@@ -64,24 +72,24 @@ export class CollectionListComponent implements OnInit, OnDestroy {
       currentState.activeCommunity &&
       currentState.activeCommunity.uuid === this.communityId
     ) {
-      if (currentState.collections.length === 0) {
-        this.fetchCollections(currentState.activeCommunity);
+      if (currentState.collections.length === 0 || page !== 0) {
+        this.fetchCollections(currentState.activeCommunity, page, size);
       } else {
         this.stateService.setLoading(false);
       }
     } else {
-      this.findCommunityAndLoadCollections();
+      this.findCommunityAndLoadCollections(page, size);
     }
   }
 
-  private findCommunityAndLoadCollections() {
+  private findCommunityAndLoadCollections(page: number = 0, size: number = 10) {
     const currentState = this.stateService.getCurrentState();
 
     if (this.stateService.hasCommunity(this.communityId)) {
       const community = this.stateService.getCommunity(this.communityId);
       if (community) {
         this.stateService.setActiveCommunity(community);
-        this.fetchCollections(community);
+        this.fetchCollections(community, page, size);
         return;
       }
     }
@@ -103,7 +111,7 @@ export class CollectionListComponent implements OnInit, OnDestroy {
             );
             if (community) {
               this.stateService.setActiveCommunity(community);
-              this.fetchCollections(community);
+              this.fetchCollections(community, page, size);
             } else {
               this.stateService.setError('Community not found');
             }
@@ -122,15 +130,19 @@ export class CollectionListComponent implements OnInit, OnDestroy {
       );
       if (community) {
         this.stateService.setActiveCommunity(community);
-        this.fetchCollections(community);
+        this.fetchCollections(community, page, size);
       } else {
         this.stateService.setError('Community not found');
       }
     }
   }
 
-  private fetchCollections(community: Community) {
-    this.dspaceService.getCollections(community).subscribe({
+  private fetchCollections(
+    community: Community,
+    page: number = 0,
+    size: number = 10
+  ) {
+    this.dspaceService.getCollections(community, page, size).subscribe({
       next: (collectionsResponse) => {
         if (
           collectionsResponse._embedded &&
@@ -142,7 +154,17 @@ export class CollectionListComponent implements OnInit, OnDestroy {
               name: this.dspaceService.extractName(col),
             })
           );
+
+          const pagination =
+            this.dspaceService.extractPagination(collectionsResponse);
+
           this.stateService.setCollections(collections);
+          this.stateService.setCollectionsPagination(pagination);
+          this.stateService.setCollectionsCurrentPage(page);
+          this.stateService.setCollectionsPageSize(size);
+
+          this.currentPage = page;
+          this.pageSize = size;
         } else {
           this.stateService.setCollections([]);
         }
@@ -152,6 +174,17 @@ export class CollectionListComponent implements OnInit, OnDestroy {
         console.error('Collections error:', collectionsError);
       },
     });
+  }
+
+  onPageChange(page: number) {
+    console.log('Collections page change requested:', page);
+    this.loadCollections(page, this.pageSize);
+  }
+
+  onPageSizeChange(size: number) {
+    console.log('Collections page size change requested:', size);
+    this.pageSize = size;
+    this.loadCollections(0, size);
   }
 
   goToItemsList(collection: Collection) {
@@ -165,6 +198,6 @@ export class CollectionListComponent implements OnInit, OnDestroy {
   }
 
   retry() {
-    this.loadCollections();
+    this.loadCollections(this.currentPage, this.pageSize);
   }
 }

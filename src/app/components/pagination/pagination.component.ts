@@ -14,6 +14,7 @@ export class PaginationComponent {
   @Input() currentPage: number = 0;
   @Input() loading: boolean = false;
   @Input() pageSize: number = 10;
+  @Input() entityType: string = 'communities';
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();
 

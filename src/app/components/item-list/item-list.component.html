@@ -70,6 +70,17 @@
       </div>
       }
     </div>
+
+    <app-pagination
+      [pagination]="pagination"
+      [currentPage]="currentPage"
+      [pageSize]="pageSize"
+      [loading]="loading"
+      [entityType]="'items'"
+      (pageChange)="onPageChange($event)"
+      (pageSizeChange)="onPageSizeChange($event)"
+    >
+    </app-pagination>
   </div>
   }
 </div>

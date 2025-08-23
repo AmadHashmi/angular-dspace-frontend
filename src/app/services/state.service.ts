@@ -39,10 +39,15 @@ export interface AppState {
   items: Item[];
   loading: boolean;
   error: string | null;
-  // Pagination for communities
   communitiesPagination: PaginationInfo | null;
   communitiesCurrentPage: number;
   communitiesPageSize: number;
+  collectionsPagination: PaginationInfo | null;
+  collectionsCurrentPage: number;
+  collectionsPageSize: number;
+  itemsPagination: PaginationInfo | null;
+  itemsCurrentPage: number;
+  itemsPageSize: number;
 }
 
 @Injectable({
@@ -57,10 +62,15 @@ export class StateService {
     items: [],
     loading: false,
     error: null,
-    // Pagination initial state
     communitiesPagination: null,
     communitiesCurrentPage: 0,
     communitiesPageSize: 10,
+    collectionsPagination: null,
+    collectionsCurrentPage: 0,
+    collectionsPageSize: 10,
+    itemsPagination: null,
+    itemsCurrentPage: 0,
+    itemsPageSize: 10,
   };
 
   private stateSubject = new BehaviorSubject<AppState>(this.initialState);
@@ -94,7 +104,12 @@ export class StateService {
 
   setCommunities(communities: Community[], pagination?: PaginationInfo): void {
     const currentState = this.getCurrentState();
-    console.log('Setting communities:', { communities: communities.length, pagination, currentPage: currentState.communitiesCurrentPage, pageSize: currentState.communitiesPageSize });
+    console.log('Setting communities:', {
+      communities: communities.length,
+      pagination,
+      currentPage: currentState.communitiesCurrentPage,
+      pageSize: currentState.communitiesPageSize,
+    });
     this.stateSubject.next({
       ...currentState,
       communities,
@@ -129,6 +144,62 @@ export class StateService {
       ...currentState,
       communitiesPageSize: size,
       communitiesCurrentPage: 0,
+    });
+  }
+
+  setCollectionsPagination(pagination: PaginationInfo): void {
+    const currentState = this.getCurrentState();
+    console.log('Setting collections pagination:', pagination);
+    this.stateSubject.next({
+      ...currentState,
+      collectionsPagination: pagination,
+    });
+  }
+
+  setCollectionsCurrentPage(page: number): void {
+    const currentState = this.getCurrentState();
+    console.log('Setting collections current page:', page);
+    this.stateSubject.next({
+      ...currentState,
+      collectionsCurrentPage: page,
+    });
+  }
+
+  setCollectionsPageSize(size: number): void {
+    const currentState = this.getCurrentState();
+    console.log('Setting collections page size:', size);
+    this.stateSubject.next({
+      ...currentState,
+      collectionsPageSize: size,
+      collectionsCurrentPage: 0,
+    });
+  }
+
+  setItemsPagination(pagination: PaginationInfo): void {
+    const currentState = this.getCurrentState();
+    console.log('Setting items pagination:', pagination);
+    this.stateSubject.next({
+      ...currentState,
+      itemsPagination: pagination,
+    });
+  }
+
+  setItemsCurrentPage(page: number): void {
+    const currentState = this.getCurrentState();
+    console.log('Setting items current page:', page);
+    this.stateSubject.next({
+      ...currentState,
+      itemsCurrentPage: page,
+    });
+  }
+
+  setItemsPageSize(size: number): void {
+    const currentState = this.getCurrentState();
+    console.log('Setting items page size:', size);
+    this.stateSubject.next({
+      ...currentState,
+      itemsPageSize: size,
+      itemsCurrentPage: 0,
     });
   }
 

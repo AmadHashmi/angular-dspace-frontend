@@ -5,14 +5,16 @@ import {
   Community,
   Collection,
   Item,
+  PaginationInfo,
 } from '../../services/state.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { PaginationComponent } from '../pagination/pagination.component';
 
 @Component({
   selector: 'app-item-list',
   standalone: true,
-  imports: [],
+  imports: [PaginationComponent],
   templateUrl: './item-list.component.html',
   styleUrl: './item-list.component.css',
 })
@@ -23,6 +25,9 @@ export class ItemListComponent implements OnInit, OnDestroy {
   loading = true;
   error: string | null = null;
   collectionId: string = '';
+  pagination: PaginationInfo | null = null;
+  currentPage: number = 0;
+  pageSize: number = 10;
   private subscription = new Subscription();
 
   constructor(
@@ -50,6 +55,9 @@ export class ItemListComponent implements OnInit, OnDestroy {
         this.community = state.activeCommunity;
         this.loading = state.loading;
         this.error = state.error;
+        this.pagination = state.itemsPagination;
+        this.currentPage = state.itemsCurrentPage;
+        this.pageSize = state.itemsPageSize;
       })
     );
   }
@@ -58,7 +66,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  loadItems() {
+  loadItems(page: number = 0, size: number = this.pageSize) {
     this.stateService.setLoading(true);
     this.stateService.clearError();
 
@@ -67,44 +75,47 @@ export class ItemListComponent implements OnInit, OnDestroy {
       currentState.activeCollection &&
       currentState.activeCollection.uuid === this.collectionId
     ) {
-      if (currentState.items.length === 0) {
-        this.fetchItems(currentState.activeCollection);
+      if (currentState.items.length === 0 || page !== 0) {
+        this.fetchItems(currentState.activeCollection, page, size);
       } else {
         this.stateService.setLoading(false);
       }
     } else {
-      this.findCollectionAndLoadItems();
+      this.findCollectionAndLoadItems(page, size);
     }
   }
 
-  private findCollectionAndLoadItems() {
+  private findCollectionAndLoadItems(page: number = 0, size: number = 10) {
     const currentState = this.stateService.getCurrentState();
 
     if (this.stateService.hasCollection(this.collectionId)) {
       const collection = this.stateService.getCollection(this.collectionId);
       if (collection) {
         this.stateService.setActiveCollection(collection);
-        this.fetchItems(collection);
+        this.fetchItems(collection, page, size);
         return;
       }
     }
 
     if (currentState.collections.length === 0) {
-      this.loadCommunitiesAndFindCollection();
+      this.loadCommunitiesAndFindCollection(page, size);
     } else {
       const collection = currentState.collections.find(
         (col) => col.uuid === this.collectionId
       );
       if (collection) {
         this.stateService.setActiveCollection(collection);
-        this.fetchItems(collection);
+        this.fetchItems(collection, page, size);
       } else {
         this.stateService.setError('Collection not found');
       }
     }
   }
 
-  private loadCommunitiesAndFindCollection() {
+  private loadCommunitiesAndFindCollection(
+    page: number = 0,
+    size: number = 10
+  ) {
     this.dspaceService.getCommunities().subscribe({
       next: (response) => {
         if (response._embedded && response._embedded.communities) {
@@ -116,7 +127,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
           );
           this.stateService.setCommunities(communities);
 
-          this.findCollectionInCommunities(communities);
+          this.findCollectionInCommunities(communities, page, size);
         } else {
           this.stateService.setError('No communities found');
         }
@@ -128,7 +139,11 @@ export class ItemListComponent implements OnInit, OnDestroy {
     });
   }
 
-  private findCollectionInCommunities(communities: Community[]) {
+  private findCollectionInCommunities(
+    communities: Community[],
+    page: number = 0,
+    size: number = 10
+  ) {
     let foundCollection: Collection | null = null;
     let foundCommunity: Community | null = null;
     let completedSearches = 0;
@@ -158,7 +173,7 @@ export class ItemListComponent implements OnInit, OnDestroy {
               this.stateService.setCollections(collections);
               this.stateService.setActiveCollection(collection);
 
-              this.fetchItems(collection);
+              this.fetchItems(collection, page, size);
             }
           }
 
@@ -181,15 +196,29 @@ export class ItemListComponent implements OnInit, OnDestroy {
     }
   }
 
-  private fetchItems(collection: Collection) {
-    this.dspaceService.getItems(collection).subscribe({
+  private fetchItems(
+    collection: Collection,
+    page: number = 0,
+    size: number = 10
+  ) {
+    this.dspaceService.getItems(collection, page, size).subscribe({
       next: (itemsResponse) => {
         if (itemsResponse._embedded && itemsResponse._embedded.items) {
           const items = itemsResponse._embedded.items.map((item: any) => ({
             ...item,
             name: this.dspaceService.extractName(item),
           }));
+
+          const pagination =
+            this.dspaceService.extractPagination(itemsResponse);
+
           this.stateService.setItems(items);
+          this.stateService.setItemsPagination(pagination);
+          this.stateService.setItemsCurrentPage(page);
+          this.stateService.setItemsPageSize(size);
+
+          this.currentPage = page;
+          this.pageSize = size;
         } else {
           this.stateService.setItems([]);
         }
@@ -199,6 +228,17 @@ export class ItemListComponent implements OnInit, OnDestroy {
         console.error('Items error:', itemsError);
       },
     });
+  }
+
+  onPageChange(page: number) {
+    console.log('Items page change requested:', page);
+    this.loadItems(page, this.pageSize);
+  }
+
+  onPageSizeChange(size: number) {
+    console.log('Items page size change requested:', size);
+    this.pageSize = size;
+    this.loadItems(0, size);
   }
 
   getItemTitle(item: Item): string {
@@ -226,6 +266,6 @@ export class ItemListComponent implements OnInit, OnDestroy {
   }
 
   retry() {
-    this.loadItems();
+    this.loadItems(this.currentPage, this.pageSize);
   }
 }
