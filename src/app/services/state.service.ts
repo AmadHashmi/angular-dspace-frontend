@@ -94,6 +94,7 @@ export class StateService {
 
   setCommunities(communities: Community[], pagination?: PaginationInfo): void {
     const currentState = this.getCurrentState();
+    console.log('Setting communities:', { communities: communities.length, pagination, currentPage: currentState.communitiesCurrentPage, pageSize: currentState.communitiesPageSize });
     this.stateSubject.next({
       ...currentState,
       communities,
@@ -105,6 +106,7 @@ export class StateService {
 
   setCommunitiesPagination(pagination: PaginationInfo): void {
     const currentState = this.getCurrentState();
+    console.log('Setting communities pagination:', pagination);
     this.stateSubject.next({
       ...currentState,
       communitiesPagination: pagination,
@@ -113,6 +115,7 @@ export class StateService {
 
   setCommunitiesCurrentPage(page: number): void {
     const currentState = this.getCurrentState();
+    console.log('Setting communities current page:', page);
     this.stateSubject.next({
       ...currentState,
       communitiesCurrentPage: page,
@@ -121,6 +124,7 @@ export class StateService {
 
   setCommunitiesPageSize(size: number): void {
     const currentState = this.getCurrentState();
+    console.log('Setting communities page size:', size);
     this.stateSubject.next({
       ...currentState,
       communitiesPageSize: size,

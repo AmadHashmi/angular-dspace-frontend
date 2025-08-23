@@ -5,23 +5,6 @@
       Showing {{ startElement }}-{{ endElement }} of
       {{ totalElements }} communities
     </span>
-
-    <div class="page-size-selector">
-      <label for="pageSize">Show:</label>
-      <select
-        id="pageSize"
-        [value]="pageSize"
-        (change)="onPageSizeChange($event)"
-        [disabled]="loading"
-      >
-        @for (size of pageSizeOptions; track size) {
-        <option [value]="size">
-          {{ size }}
-        </option>
-        }
-      </select>
-      <span>per page</span>
-    </div>
   </div>
 
   <div class="pagination-controls">

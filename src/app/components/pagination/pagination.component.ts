@@ -12,6 +12,7 @@ export class PaginationComponent {
   @Input() pagination: PaginationInfo | null = null;
   @Input() currentPage: number = 0;
   @Input() loading: boolean = false;
+  @Input() pageSize: number = 10;
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();
 
@@ -31,10 +32,6 @@ export class PaginationComponent {
 
   get totalElements(): number {
     return this.pagination ? this.pagination.totalElements : 0;
-  }
-
-  get pageSize(): number {
-    return this.pagination ? this.pagination.size : 10;
   }
 
   get startElement(): number {
@@ -62,7 +59,7 @@ export class PaginationComponent {
     if (!this.pagination) return [];
 
     const totalPages = this.pagination.totalPages;
-    const currentPage = this.pagination.number;
+    const currentPage = this.currentPage;
     const pages: number[] = [];
 
     pages.push(0);

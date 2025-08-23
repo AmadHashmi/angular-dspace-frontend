@@ -3,7 +3,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Community, Collection, Item } from './state.service';
 
-const API_URL = 'http://localhost:8080/server/api';
+// const API_URL = 'http://localhost:8080/server/api';
+const API_URL = 'https://demo.dspace.org/server/api';
 
 @Injectable({
   providedIn: 'root',

@@ -34,6 +34,12 @@ export class CommunityListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscription.add(
       this.stateService.state$.subscribe((state) => {
+        console.log('State updated:', {
+          communities: state.communities.length,
+          pagination: state.communitiesPagination,
+          currentPage: state.communitiesCurrentPage,
+          pageSize: state.communitiesPageSize,
+        });
         this.communities = state.communities;
         this.loading = state.loading;
         this.error = state.error;
@@ -72,6 +78,9 @@ export class CommunityListComponent implements OnInit, OnDestroy {
           this.stateService.setCommunities(communities, pagination);
           this.stateService.setCommunitiesCurrentPage(page);
           this.stateService.setCommunitiesPageSize(size);
+
+          this.currentPage = page;
+          this.pageSize = size;
         } else {
           this.stateService.setError('No communities found');
         }
@@ -84,11 +93,14 @@ export class CommunityListComponent implements OnInit, OnDestroy {
   }
 
   onPageChange(page: number) {
+    console.log('Page change requested:', page);
     this.loadCommunities(page, this.pageSize);
   }
 
   onPageSizeChange(size: number) {
+    console.log('Page size change requested:', size);
     this.pageSize = size;
+
     this.loadCommunities(0, size);
   }
 
